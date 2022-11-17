@@ -35,11 +35,8 @@ public class Buyer {
 
     @Override
     public String toString() {
-        return "Buyer{" +
-                "id=" + id +
-                ", firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", shipments=" + shipments +
+        return "{\"lastname\":\"" + lastname + "\"" +
+                ",\"firstname\":\"" + firstname + "\"" +
                 '}';
     }
 }

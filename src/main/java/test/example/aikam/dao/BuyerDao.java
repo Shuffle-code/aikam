@@ -12,26 +12,17 @@ import java.util.List;
 
 public interface BuyerDao extends JpaRepository<Buyer, Long> {
 
+    @Query(value = "SELECT firstname, lastname  from buyer WHERE lastname = :lastname", nativeQuery = true)
+    List<String> findByLastnameNew (@Param("lastname") String lastname);buyer.lastname = :lastname", nativeQuery = true)
     List<Buyer> findByLastname (String lastname);
-
-    @Query(value = "SELECT buyer.lastname from buyer WHERE buyer.lastname = :id", nativeQuery = true) //todo
-    List<Buyer> findBuyersByShipmentAndAmount(@Param("title") String title, @Param("amount") Integer integer);
-
-    @Query(value = "SELECT player_image.path FROM player_image WHERE player_image.player_id = :id LIMIT 1", nativeQuery = true) //todo
-    String findBuyersByMinMax(@Param("min") BigDecimal min, @Param("max") BigDecimal max);
-
-    @Query(value = "SELECT player_image.lastname from player_image WHERE player_image.player_id = :id", nativeQuery = true) //todo
-    List<Buyer> findBadBuyers(@Param("count") Integer integer);
-
-
-//    {
-//        "criterias": [
-//        {"lastName": "Иванов"}, //Фамилия
-//        {"productName": "Минеральная вода", "minTimes": 5}, // Название товара и число раз
-//        {"minExpenses": 112, "maxExpenses": 4000}, //Минимальная и максимальная стоимость всех покупок
-//        {"badCustomers": 3} //Число пассивных покупателей
-//      ]
-//    }
-
+//
+//    @Query(value = "SELECT buyer from buyer JOIN purchase ON buyer.id = shipment.id WHERE buyer.lastname = :id", nativeQuery = true) //todo
+//    List<Buyer> findBuyersByShipmentAndAmount(@Param("title") String title, @Param("amount") Integer integer);
+////
+////    @Query(value = "SELECT player_image.path FROM player_image WHERE player_image.player_id = :id LIMIT 1", nativeQuery = true) //todo
+//    String findBuyersByMinMax(@Param("min") BigDecimal min, @Param("max") BigDecimal max);
+////
+//    @Query(value = "SELECT buyer from buyer WHERE player_image.player_id = :id", nativeQuery = true) //todo
+//    List<Buyer> findBadBuyers(@Param("count") Integer integer);
 
 }
