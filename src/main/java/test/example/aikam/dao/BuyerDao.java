@@ -3,26 +3,39 @@ package test.example.aikam.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import test.example.aikam.entity.Buyer;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface BuyerDao extends JpaRepository<Buyer, Long> {
 
-    @Query(value = "SELECT firstname, lastname  from buyer WHERE lastname = :lastname", nativeQuery = true)
-    List<String> findByLastnameNew (@Param("lastname") String lastname);buyer.lastname = :lastname", nativeQuery = true)
-    List<Buyer> findByLastname (String lastname);
-//
-//    @Query(value = "SELECT buyer from buyer JOIN purchase ON buyer.id = shipment.id WHERE buyer.lastname = :id", nativeQuery = true) //todo
-//    List<Buyer> findBuyersByShipmentAndAmount(@Param("title") String title, @Param("amount") Integer integer);
-////
-////    @Query(value = "SELECT player_image.path FROM player_image WHERE player_image.player_id = :id LIMIT 1", nativeQuery = true) //todo
-//    String findBuyersByMinMax(@Param("min") BigDecimal min, @Param("max") BigDecimal max);
-////
-//    @Query(value = "SELECT buyer from buyer WHERE player_image.player_id = :id", nativeQuery = true) //todo
-//    List<Buyer> findBadBuyers(@Param("count") Integer integer);
 
+    @Query(value = "SELECT firstname, lastname  from buyer WHERE lastname = :lastname", nativeQuery = true)
+    List<String> findByLastnameNew (@Param("lastname") String lastname);
+    List<Buyer> findByLastname (String lastname);
+
+    @Query(value = "WITH this_shipment AS (select * from purchase \n" +
+            "JOIN shipment on purchase.shipment_id = shipment.id \n" +
+            "where shipment.title =:title),\n" +
+            "amount_buyer_info AS (select count(shipment_id) as count, \n" +
+            "buyer_id from this_shipment group by buyer_id)\n" +
+            "SELECT buyer_id from amount_buyer_info where count >= :i", nativeQuery = true) //todo
+    List<Long> findBuyersByShipmentAndAmount(@Param("title") String title, @Param("i") int i);
+
+    @Query(value = "WITH purchese AS (SELECT * FROM purchase),\n" +
+            "shipment_without_title AS\n" +
+            "(SELECT id, cost FROM shipment),\n" +
+            "full_join AS\n" +
+            "(SELECT * FROM purchese FULL JOIN shipment_without_title\n" +
+            "ON purchese.shipment_id = shipment_without_title.id),\n" +
+            "stat AS (SELECT buyer_id, shipment_id, cost FROM full_join),\n" +
+            "summ AS (SELECT buyer_id, SUM(cost) AS SUM\n" +
+            "FROM stat GROUP BY buyer_id ORDER BY buyer_id)\n" +
+            "SELECT buyer_id FROM summ WHERE sum >=:min AND sum <=:max", nativeQuery = true) //todo
+    List<Long> findBuyersByMinMax(@Param("min") int min, @Param("max") int max);
+//
+    @Query(value = "SELECT id from buyer JOIN bad_info ON buyer.id = buyer limit :amountBad", nativeQuery = true) //todo
+    List<Long> findBadBuyers(@Param("amountBad") Long amountBad );
+//    SELECT id from buyer JOIN bad_info ON buyer.id = buyer limit :amountBad
 }

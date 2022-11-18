@@ -1,16 +1,16 @@
 package test.example.aikam.service;
 
 import lombok.RequiredArgsConstructor;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import test.example.aikam.dao.BuyerDao;
-import test.example.aikam.entity.Buyer;
-import test.example.aikam.entity.RequestParam;
-import test.example.aikam.entity.ResponseSearch;
+import test.example.aikam.entity.*;
 import test.example.aikam.handling.JsonParser;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -31,6 +31,15 @@ public class BuyerService {
         return buyerDao.findByLastnameNew(lastname);
     };
 
+    public List<Buyer> findBadBuyers (Long i){
+        List<Long> badBuyers = buyerDao.findBadBuyers(i);
+        List<Buyer> buyerList = new LinkedList<>();
+        for (Long id :badBuyers) {
+            buyerList.add(buyerDao.findById(id).get());
+        }
+        return buyerList;
+    }
+
     public List<Buyer> executeRequestLastname (String fileName) throws IOException {
         RequestParam criterionForSearch = jsonParser.getCriterionForSearch(fileName);
         List<Buyer> byLastnames = findByLastname(criterionForSearch.getLastName());
@@ -39,38 +48,61 @@ public class BuyerService {
 
     public List<Buyer> executeRequestShipmentAmount (String fileName) throws IOException {
         RequestParam criterionForSearch = jsonParser.getCriterionForSearch(fileName);
-        List<Buyer> byLastnames = findByLastname(criterionForSearch.getLastName());
+        List<Buyer> byLastnames = findBuyersByShipmentAndAmount(criterionForSearch.getProductName(), criterionForSearch.getMinTimes() );
         return byLastnames;
+    }
+
+    private List<Buyer> findBuyersByShipmentAndAmount(String title, int i) {
+        List<Long> badBuyers = buyerDao.findBuyersByShipmentAndAmount(title, i);
+        List<Buyer> buyerList = new LinkedList<>();
+        for (Long id :badBuyers) {
+            buyerList.add(buyerDao.findById(id).get());
+        }
+        return buyerList;
+    }
+
+    private List<Buyer> findBuyersByMinMax(int min, int max) {
+        List<Long> badBuyers = buyerDao.findBuyersByMinMax(min, max);
+        List<Buyer> buyerList = new LinkedList<>();
+        for (Long id :badBuyers) {
+            buyerList.add(buyerDao.findById(id).get());
+        }
+        return buyerList;
     }
 
     public List<Buyer> executeRequestMinMax (String fileName) throws IOException {
         RequestParam criterionForSearch = jsonParser.getCriterionForSearch(fileName);
-        List<Buyer> byLastnames = findByLastname(criterionForSearch.getLastName());
+        List<Buyer> byLastnames = findBuyersByMinMax(criterionForSearch.getMinExpenses(), criterionForSearch.getMaxExpenses());
         return byLastnames;
     }
 
     public List<Buyer> executeRequestBad (String fileName) throws IOException {
         RequestParam criterionForSearch = jsonParser.getCriterionForSearch(fileName);
-        List<Buyer> byLastnames = findByLastname(criterionForSearch.getLastName());
+        List<Buyer> byLastnames = findBadBuyers(criterionForSearch.getBadCustomers());
         return byLastnames;
     }
-    public ResponseSearch createResponse (String filename) throws IOException {
-        ResponseSearch responseSearch = new ResponseSearch();
-        responseSearch.setBuyerListRequestLastname(executeRequestLastname(filename));
-        responseSearch.setBuyerListRequestShipmentAmount(executeRequestShipmentAmount(filename));
-        responseSearch.setBuyerListRequestMinMax(executeRequestMinMax(filename));
-        responseSearch.setBuyerListRequestBad(executeRequestBad(filename));
-        responseSearch.setRequest(jsonParser.getCriterionForSearch(filename));
-        return responseSearch;
+    public Json createResponse (String filename) throws IOException {
+        try {
+            ResponseSearch responseSearch = new ResponseSearch();
+            responseSearch.setBuyerListRequestLastname(executeRequestLastname(filename));
+            responseSearch.setBuyerListRequestShipmentAmount(executeRequestShipmentAmount(filename));
+            responseSearch.setBuyerListRequestMinMax(executeRequestMinMax(filename));
+            responseSearch.setBuyerListRequestBad(executeRequestBad(filename));
+            responseSearch.setRequest(jsonParser.getCriterionForSearch(filename));
+            return responseSearch;
+        }catch (Exception e){
+            ResponseError responseError = new ResponseError();
+            responseError.setMassage("Attention Error : " + e.getMessage());
+            return responseError;
+        }
     }
 
-    public void writeJson(ResponseSearch responseSearch) {
-        JSONObject jsonObj = new JSONObject(responseSearch.toString());
-        try(FileOutputStream fos = new FileOutputStream("output.json")) {
+    public void writeJson(Json response) {
+        JSONObject jsonObj = new JSONObject(response.toString());
+        try(FileOutputStream fos = new FileOutputStream("storage/response/output.json")) {
             fos.write(jsonObj.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }
