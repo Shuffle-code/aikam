@@ -1,8 +1,9 @@
-package test.example.aikam.entity;
+package test.example.aikam.json;
 
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -14,8 +15,8 @@ public class RequestParam implements Json {
     private int minExpenses;
     private int maxExpenses;
     private Long badCustomers;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @Override
     public String toString() {
@@ -31,4 +32,8 @@ public class RequestParam implements Json {
                 '}';
     }
 
+    @Override
+    public int toJSONString() {
+        return 0;
+    }
 }

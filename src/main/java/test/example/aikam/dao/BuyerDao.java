@@ -9,12 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BuyerDao extends JpaRepository<Buyer, Long> {
-
-
     @Query(value = "SELECT firstname, lastname  from buyer WHERE lastname = :lastname", nativeQuery = true)
     List<String> findByLastnameNew (@Param("lastname") String lastname);
     List<Buyer> findByLastname (String lastname);
-
     @Query(value = "WITH this_shipment AS (select * from purchase \n" +
             "JOIN shipment on purchase.shipment_id = shipment.id \n" +
             "where shipment.title =:title),\n" +
@@ -22,7 +19,6 @@ public interface BuyerDao extends JpaRepository<Buyer, Long> {
             "buyer_id from this_shipment group by buyer_id)\n" +
             "SELECT buyer_id from amount_buyer_info where count >= :i", nativeQuery = true) //todo
     List<Long> findBuyersByShipmentAndAmount(@Param("title") String title, @Param("i") int i);
-
     @Query(value = "WITH purchese AS (SELECT * FROM purchase),\n" +
             "shipment_without_title AS\n" +
             "(SELECT id, cost FROM shipment),\n" +
@@ -34,8 +30,7 @@ public interface BuyerDao extends JpaRepository<Buyer, Long> {
             "FROM stat GROUP BY buyer_id ORDER BY buyer_id)\n" +
             "SELECT buyer_id FROM summ WHERE sum >=:min AND sum <=:max", nativeQuery = true) //todo
     List<Long> findBuyersByMinMax(@Param("min") int min, @Param("max") int max);
-//
     @Query(value = "SELECT id from buyer JOIN bad_info ON buyer.id = buyer limit :amountBad", nativeQuery = true) //todo
     List<Long> findBadBuyers(@Param("amountBad") Long amountBad );
-//    SELECT id from buyer JOIN bad_info ON buyer.id = buyer limit :amountBad
 }
+

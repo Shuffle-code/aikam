@@ -1,15 +1,19 @@
 package test.example.aikam.service;
 
 import lombok.RequiredArgsConstructor;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import test.example.aikam.dao.BuyerDao;
 import test.example.aikam.entity.*;
-import test.example.aikam.handling.JsonParser;
+import test.example.aikam.handlingJson.JsonParser;
+import test.example.aikam.json.Json;
+import test.example.aikam.json.RequestParam;
+import test.example.aikam.json.ResponseError;
+import test.example.aikam.json.ResponseSearch;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +26,9 @@ public class BuyerService {
     public List<Buyer> findAll(){
         return buyerDao.findAll();
     }
+    public Buyer finById(Long id){
+        return buyerDao.findById(id).get();
+    }
 
     public List<Buyer> findByLastname (String lastname){
         return buyerDao.findByLastname(lastname);
@@ -33,7 +40,7 @@ public class BuyerService {
 
     public List<Buyer> findBadBuyers (Long i){
         List<Long> badBuyers = buyerDao.findBadBuyers(i);
-        List<Buyer> buyerList = new LinkedList<>();
+        List<Buyer> buyerList = new ArrayList<>();
         for (Long id :badBuyers) {
             buyerList.add(buyerDao.findById(id).get());
         }
@@ -81,7 +88,7 @@ public class BuyerService {
         List<Buyer> byLastnames = findBadBuyers(criterionForSearch.getBadCustomers());
         return byLastnames;
     }
-    public Json createResponse (String filename) throws IOException {
+    public Json createResponseSearch (String filename){
         try {
             ResponseSearch responseSearch = new ResponseSearch();
             responseSearch.setBuyerListRequestLastname(executeRequestLastname(filename));
@@ -105,4 +112,5 @@ public class BuyerService {
             e.printStackTrace();
         }
     }
+
 }

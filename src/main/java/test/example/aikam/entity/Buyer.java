@@ -10,9 +10,7 @@ import java.util.Set;
 @Setter
 @Getter
 @Entity
-//@AllArgsConstructor
 @NoArgsConstructor
-//@Builder
 @Table (name = "buyer")
 @EntityListeners(AuditingEntityListener.class)
 public class Buyer {
