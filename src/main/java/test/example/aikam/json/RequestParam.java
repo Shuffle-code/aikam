@@ -4,11 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 @Setter
-public class RequestParam implements Json {
+public class RequestParam implements JsonResponse {
     private String lastName;
     private String productName;
     private int minTimes;
@@ -30,10 +29,5 @@ public class RequestParam implements Json {
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 '}';
-    }
-
-    @Override
-    public int toJSONString() {
-        return 0;
     }
 }

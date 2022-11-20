@@ -10,8 +10,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class ResponseSearch implements Json {
-
+public class ResponseSearch implements JsonResponse {
     private RequestParam request;
     private List<Buyer> buyerListRequestLastname;
     private List<Buyer> buyerListRequestShipmentAmount;
@@ -34,8 +33,4 @@ public class ResponseSearch implements Json {
 
     }
 
-    @Override
-    public int toJSONString() {
-        return 0;
-    }
 }

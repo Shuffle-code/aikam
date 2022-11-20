@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PurchaseDao extends JpaRepository<Purchase, Long> {
-
     @Query(value = "SELECT * FROM purchase WHERE data BETWEEN :startData AND :endData", nativeQuery = true)
     List<Purchase> findAllByData (@Param("startData") LocalDate startData, @Param("endData") LocalDate endData);
 }

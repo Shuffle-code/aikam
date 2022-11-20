@@ -11,14 +11,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class ShipmentService {
     private final ShipmentDao shipmentDao;
-
     public Shipment findById(Long id){
         return shipmentDao.findById(id).get();
     }
-
-//    public BigDecimal findCostById(Long id){
-//        return shipmentDao.findCostById();
-//    }
-
-
 }

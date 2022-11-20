@@ -16,9 +16,12 @@ import test.example.aikam.service.ShipmentService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.aspectj.runtime.internal.Conversions.doubleValue;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +30,28 @@ public class HandlingJson {
     private final PurchaseService purchaseService;
     private final BuyerService buyerService;
     private final ShipmentService shipmentService;
-    private static BigDecimal totalExpenses = BigDecimal.valueOf(0);
+    private double totalExpenses = 0;
 
-    public JSONObject createJsonForStatRequest(String filename) throws IOException {
-        JSONObject jsonObject = new JSONObject();
-        RequestParam criterionForStat = jsonParser.getCriterionForStat(filename);
-        LocalDate startDate = criterionForStat.getStartDate();
-        LocalDate endDate = criterionForStat.getEndDate();
-        int totalDays = workingDay(startDate, endDate);
-        BigDecimal totalExpenses = BigDecimal.valueOf(0);
-        List<Purchase> buyerByData = getBuyerByData(startDate, endDate);
-        Map<Buyer, List<Shipment>> mapBuyerPurchase = createMapBuyerPurchase(buyerByData);
-        jsonObject.put(TypeCriteria.TOTAL_DAYS.getTitle(), totalDays);
-        jsonObject.put(TypeCriteria.TYPE.getTitle(), TypeRequest.STAT.getTitle());
-        jsonObject.put(TypeCriteria.CUSTOMERS.getTitle(), createBuyerJsonArray(mapBuyerPurchase));
-        jsonObject.put(TypeCriteria.AVG_EXPENSES.getTitle(), totalExpenses.divide(BigDecimal.valueOf(mapBuyerPurchase.size())));
-        jsonObject.put(TypeCriteria.TOTAL_EXPENSES.getTitle(),totalExpenses);
-        return jsonObject;
+
+    public void createJsonForStatRequest(String filename) throws IOException {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            RequestParam criterionForStat = jsonParser.getCriterionForStat(filename);
+            LocalDate startDate = criterionForStat.getStartDate();
+            LocalDate endDate = criterionForStat.getEndDate();
+            int totalDays = workingDay(startDate, endDate);
+            List<Purchase> buyerByData = getBuyerByData(startDate, endDate);
+            Map<Buyer, List<Shipment>> mapBuyerPurchase = createMapBuyerPurchase(buyerByData);
+            jsonObject.put(TypeCriteria.TOTAL_DAYS.getTitle(), totalDays);
+            jsonObject.put(TypeCriteria.TYPE.getTitle(), TypeRequest.STAT.getTitle());
+            jsonObject.put(TypeCriteria.CUSTOMERS.getTitle(), createBuyerJsonArray(mapBuyerPurchase));
+            jsonObject.put(TypeCriteria.TOTAL_EXPENSES.getTitle(),BigDecimal.valueOf(totalExpenses));
+            jsonObject.put(TypeCriteria.AVG_EXPENSES.getTitle(), BigDecimal.valueOf(totalExpenses / (doubleValue(mapBuyerPurchase.size()))).setScale(2, RoundingMode.DOWN));
+            jsonParser.writeJsonExample(jsonObject, "outputStat.json");
+        }catch (Exception e){
+            e.printStackTrace();
+            jsonParser.printError(e.getMessage(), "outputStat.json");
+        }
     }
 
     public List<Purchase> getBuyerByData(LocalDate startDate, LocalDate endDate){
@@ -56,19 +64,19 @@ public class HandlingJson {
             JSONObject jsonObjectBuyer = new JSONObject();
             jsonObjectBuyer.put(TypeCriteria.NAME.getTitle(), buyer.getLastname() + " " + buyer.getFirstname());
             JSONArray jsonArrayPurchase = new JSONArray();
-            BigDecimal totalExpenseCurr = BigDecimal.valueOf(0);
+            double totalExpenseCurr = 0;
             for (Shipment shipment : mapBuyerPurchase.get(buyer)) {
                 JSONObject jsonObjectShipment = new JSONObject();
                 jsonObjectShipment.put(TypeCriteria.PRODUCT_NAME.getTitle(), shipment.getTitle());
                 jsonObjectShipment.put(TypeCriteria.EXPENSES.getTitle(), shipment.getCost());
+                double v = doubleValue(shipment.getCost().setScale(2, RoundingMode.DOWN));
                 jsonArrayPurchase.put(jsonObjectShipment);
-                totalExpenseCurr = totalExpenseCurr.add(shipment.getCost());
-                System.out.println(totalExpenseCurr.add(shipment.getCost()));
+                totalExpenseCurr += v;
             }
             jsonObjectBuyer.put(TypeCriteria.TOTAL_EXPENSES.getTitle(),totalExpenseCurr);
             jsonObjectBuyer.put(TypeCriteria.PURCHASES.getTitle(),jsonArrayPurchase);
             jsonArray.put(jsonObjectBuyer);
-            totalExpenses.add(totalExpenseCurr);
+            totalExpenses += totalExpenseCurr;
         }
         return jsonArray;
     }
@@ -86,7 +94,6 @@ public class HandlingJson {
                 }
             }
         }
-
         return buyerMapListPurchase;
     }
     public int workingDay(LocalDate start, LocalDate end){

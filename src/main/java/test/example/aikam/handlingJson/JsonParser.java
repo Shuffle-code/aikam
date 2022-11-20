@@ -1,13 +1,9 @@
 package test.example.aikam.handlingJson;
-
-
-
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import test.example.aikam.json.Json;
+import test.example.aikam.json.JsonResponse;
 import test.example.aikam.json.RequestParam;
 import test.example.aikam.json.ResponseError;
 import test.example.aikam.json.enums.TypeCriteria;
@@ -17,14 +13,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
 
 @Component
+//@RequiredArgsConstructor
 public class JsonParser {
+
+//    private final String outputFileName;
 
     @Value("${storage.location}/request")
     private Path storagePathIn;
@@ -72,11 +67,25 @@ public class JsonParser {
     }
 
     public RequestParam getCriterionForStat(String fileName) throws IOException {
-        JSONObject json = getJson(fileName);
-        RequestParam request = new RequestParam();
-        request.setStartDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.START_DATE.getTitle())));
-        request.setEndDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.END_DATE.getTitle())));
-        return request;
+        try {
+            JSONObject json = getJson(fileName);
+            RequestParam request = new RequestParam();
+            request.setStartDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.START_DATE.getTitle())));
+            request.setEndDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.END_DATE.getTitle())));
+            return request;
+        } catch (IOException e) {
+            e.printStackTrace();
+            String errorMassage = e.toString();
+            dispatchError(errorMassage);
+        }return null;
+    }
+
+
+    public void printError(String message, String outputFileName) throws IOException {
+        JSONObject jsonObjectError = new JSONObject();
+        jsonObjectError.put("type", "error");
+        jsonObjectError.put("message", message);
+        writeJsonExample(jsonObjectError, outputFileName);
     }
 
 
@@ -86,10 +95,19 @@ public class JsonParser {
         return new JSONObject(jsonString);
     }
 
-    public void writeJsonExample(JSONObject jsonObject) throws IOException {
-        FileWriter file = new FileWriter(String.valueOf(storagePathOut.resolve("outputStat.json")));
+    public void writeJsonExample(JSONObject jsonObject, String outputFileName) throws IOException {
+        FileWriter file = new FileWriter(String.valueOf(storagePathOut.resolve(outputFileName)));
         file.write(String.valueOf(jsonObject));
         file.close();
+    }
+
+    public void writeJson(JsonResponse response) {
+        JSONObject jsonObj = new JSONObject(response.toString());
+        try(FileOutputStream fos = new FileOutputStream("storage/response/output.json")) {
+            fos.write(jsonObj.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

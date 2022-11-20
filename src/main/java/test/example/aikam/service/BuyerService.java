@@ -1,17 +1,14 @@
 package test.example.aikam.service;
 
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import test.example.aikam.dao.BuyerDao;
 import test.example.aikam.entity.*;
 import test.example.aikam.handlingJson.JsonParser;
-import test.example.aikam.json.Json;
 import test.example.aikam.json.RequestParam;
 import test.example.aikam.json.ResponseError;
 import test.example.aikam.json.ResponseSearch;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -88,7 +85,7 @@ public class BuyerService {
         List<Buyer> byLastnames = findBadBuyers(criterionForSearch.getBadCustomers());
         return byLastnames;
     }
-    public Json createResponseSearch (String filename){
+    public void createResponseSearch (String filename){
         try {
             ResponseSearch responseSearch = new ResponseSearch();
             responseSearch.setBuyerListRequestLastname(executeRequestLastname(filename));
@@ -96,20 +93,11 @@ public class BuyerService {
             responseSearch.setBuyerListRequestMinMax(executeRequestMinMax(filename));
             responseSearch.setBuyerListRequestBad(executeRequestBad(filename));
             responseSearch.setRequest(jsonParser.getCriterionForSearch(filename));
-            return responseSearch;
+            jsonParser.writeJson(responseSearch);
         }catch (Exception e){
             ResponseError responseError = new ResponseError();
-            responseError.setMassage("Attention Error : " + e.getMessage());
-            return responseError;
-        }
-    }
-
-    public void writeJson(Json response) {
-        JSONObject jsonObj = new JSONObject(response.toString());
-        try(FileOutputStream fos = new FileOutputStream("storage/response/output.json")) {
-            fos.write(jsonObj.toString().getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+            responseError.setMassage("Attention Error: " + e.getMessage());
+            jsonParser.writeJson(responseError);
         }
     }
 

@@ -12,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PurchaseService {
     private final PurchaseDao purchaseDao;
-
     public List<Purchase> findAllByData(LocalDate start, LocalDate end){
         return purchaseDao.findAllByData(start, end);
     }

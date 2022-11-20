@@ -7,5 +7,4 @@ import test.example.aikam.entity.Shipment;
 import java.math.BigDecimal;
 
 public interface ShipmentDao extends JpaRepository<Shipment, Long> {
-//    BigDecimal findCostById();
 }
