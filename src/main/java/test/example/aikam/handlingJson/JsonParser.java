@@ -27,9 +27,15 @@ public class JsonParser {
     @Value("${storage.location}/response")
     private Path storagePathOut;
 
+//    @Value("C:\\Users\\79130\\IdeaProjects\\aikam\\storage\\request")
+//    private Path storagePathIn;
+//
+//    @Value("C:\\Users\\79130\\IdeaProjects\\aikam\\storage\\response")
+//    private Path storagePathOut;
+
     public RequestParam getCriterionForSearch(String fileName) throws IOException {
         try {
-            JSONObject json = getJson(fileName);
+            JSONObject json = getInJson(fileName);
             RequestParam request = new RequestParam();
             JSONArray criteriaS = json.getJSONArray(TypeCriteria.CRITERIA.getTitle());
             for (int i = 0; i < criteriaS.length(); i++) {
@@ -68,7 +74,7 @@ public class JsonParser {
 
     public RequestParam getCriterionForStat(String fileName) throws IOException {
         try {
-            JSONObject json = getJson(fileName);
+            JSONObject json = getInJson(fileName);
             RequestParam request = new RequestParam();
             request.setStartDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.START_DATE.getTitle())));
             request.setEndDate(LocalDate.parse((CharSequence) json.get(TypeCriteria.END_DATE.getTitle())));
@@ -89,8 +95,13 @@ public class JsonParser {
     }
 
 
-    public JSONObject getJson(String fileName) throws IOException {
+    public JSONObject getInJson(String fileName) throws IOException {
         Path pathJson = storagePathIn.resolve(fileName);
+        String jsonString = new String(Files.readAllBytes(pathJson));
+        return new JSONObject(jsonString);
+    }
+    public JSONObject getOutJson(String fileName) throws IOException {
+        Path pathJson = storagePathOut.resolve(fileName);
         String jsonString = new String(Files.readAllBytes(pathJson));
         return new JSONObject(jsonString);
     }
