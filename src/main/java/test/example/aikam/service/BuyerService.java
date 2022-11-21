@@ -85,7 +85,7 @@ public class BuyerService {
         List<Buyer> byLastnames = findBadBuyers(criterionForSearch.getBadCustomers());
         return byLastnames;
     }
-    public void createResponseSearch (String filename){
+    public void createResponseSearch (String filename, String outputFilename){
         try {
             ResponseSearch responseSearch = new ResponseSearch();
             responseSearch.setBuyerListRequestLastname(executeRequestLastname(filename));
@@ -93,11 +93,11 @@ public class BuyerService {
             responseSearch.setBuyerListRequestMinMax(executeRequestMinMax(filename));
             responseSearch.setBuyerListRequestBad(executeRequestBad(filename));
             responseSearch.setRequest(jsonParser.getCriterionForSearch(filename));
-            jsonParser.writeJson(responseSearch);
+            jsonParser.writeJson(responseSearch, outputFilename);
         }catch (Exception e){
             ResponseError responseError = new ResponseError();
             responseError.setMassage("Attention Error: " + e.getMessage());
-            jsonParser.writeJson(responseError);
+            jsonParser.writeJson(responseError, outputFilename);
         }
     }
 

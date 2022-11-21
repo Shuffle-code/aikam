@@ -33,7 +33,7 @@ public class HandlingJson {
     private double totalExpenses = 0;
 
 
-    public void createJsonForStatRequest(String filename) throws IOException {
+    public void createJsonForStatRequest(String filename, String outputFileName) throws IOException {
         try {
             JSONObject jsonObject = new JSONObject();
             RequestParam criterionForStat = jsonParser.getCriterionForStat(filename);
@@ -47,10 +47,10 @@ public class HandlingJson {
             jsonObject.put(TypeCriteria.CUSTOMERS.getTitle(), createBuyerJsonArray(mapBuyerPurchase));
             jsonObject.put(TypeCriteria.TOTAL_EXPENSES.getTitle(),BigDecimal.valueOf(totalExpenses));
             jsonObject.put(TypeCriteria.AVG_EXPENSES.getTitle(), BigDecimal.valueOf(totalExpenses / (doubleValue(mapBuyerPurchase.size()))).setScale(2, RoundingMode.DOWN));
-            jsonParser.writeJsonExample(jsonObject, "outputStat.json");
+            jsonParser.writeJsonExample(jsonObject, outputFileName);
         }catch (Exception e){
             e.printStackTrace();
-            jsonParser.printError(e.getMessage(), "outputStat.json");
+            jsonParser.printError(e.getMessage(), outputFileName);
         }
     }
 

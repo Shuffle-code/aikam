@@ -18,8 +18,7 @@ public class AikamApp {
         HandlingJson handlingJson = context.getBean(HandlingJson.class);
         JsonParser jsonParser = context.getBean(JsonParser.class);
         String command = args[0];
-        String outFile = "output.json";
-        if (args.length != 2) {
+        if (args.length != 3) {
             System.out.println("ERROR: INVALID NUMBER OF ARGUMENTS.");
         } else if (!(args[0].equals("search") || args[0].equals("stat"))) {
             System.out.println("!Command " + command + " is unknown");
@@ -27,15 +26,14 @@ public class AikamApp {
 
         if (args[0].equals("search")){
             System.out.println("This is type: " + args[0]);
-            System.out.println("This is string inJSON: " + jsonParser.getInJson("input.json").toString());
-            buyerService.createResponseSearch(args[1]);
-            System.out.println("This is string outJSON: " + jsonParser.getOutJson("output.json"));
+            System.out.println("This is string inJSON: " + jsonParser.getInJson(args[1]).toString());
+            buyerService.createResponseSearch(args[1], args[2]);
+            System.out.println("This is string outJSON: " + jsonParser.getOutJson(args[2]));
         } else if (args[0].equals("stat")){
             System.out.println("This is type: " + args[0]);
-            System.out.println("This is string inJSON: " + jsonParser.getInJson("inputStat.json"));
-            outFile = "outputStat.json";
-            handlingJson.createJsonForStatRequest(args[1]);
-            System.out.println("This is string outJSON: " + jsonParser.getOutJson("outputStat.json"));
+            System.out.println("This is string inJSON: " + jsonParser.getInJson(args[1]));
+            handlingJson.createJsonForStatRequest(args[1], args[2]);
+            System.out.println("This is string outJSON: " + jsonParser.getOutJson(args[2]));
         }else System.out.println("Command " + command + " is unknown");
     }
 }

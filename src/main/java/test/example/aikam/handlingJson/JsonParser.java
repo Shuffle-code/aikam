@@ -112,9 +112,9 @@ public class JsonParser {
         file.close();
     }
 
-    public void writeJson(JsonResponse response) {
+    public void writeJson(JsonResponse response, String outputFilename) {
         JSONObject jsonObj = new JSONObject(response.toString());
-        try(FileOutputStream fos = new FileOutputStream("storage/response/output.json")) {
+        try(FileOutputStream fos = new FileOutputStream(String.valueOf(storagePathOut.resolve(outputFilename)))) {
             fos.write(jsonObj.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
