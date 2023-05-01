@@ -1,5 +1,7 @@
 spring:
   datasource:
-    url: "jdbc:postgresql://localhost:5432/aikam"
+    url: 'jdbc:postgresql://localhost:5432/aikam'
     username: "shuffle"
     password: "shuffle"
+storage:
+  location: './storage'
